@@ -10,4 +10,5 @@ pode criar posts, assim que esses posts são criados 2 eventos são emitidos:
 ## Como rodar?
 
 É necessario definir as variaveis de ambiente `MONGO_USER` e `MONGO_PASSWORD`, confome demostrando no arquivo `.env.example` 
-dentro de um arquivo `.env`, apos isso execute o comando `npm i` e por fim execute a aplicação `node app.js`
+dentro de um arquivo `.env`, apos isso execute o comando `npm i` e por fim execute a aplicação `npm run start`, caso queira 
+limpar o banco basta executar `npm run drop-tables`
