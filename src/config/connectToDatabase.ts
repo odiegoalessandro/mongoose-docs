@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-module.exports = async function connectToDatabase() {
+export default async function connectToDatabase() {
   try {
     await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.7sdbh44.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
 

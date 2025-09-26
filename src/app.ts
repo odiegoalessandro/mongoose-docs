@@ -1,12 +1,10 @@
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const connectToDatabase = require("./config/connectToDatabase");
-const createPost = require("./services/createPost");
-const Person = require("./models/Person");
-const Post = require("./models/Post");
-const { Event } = require("./models/Events");
-const { SignedUpEvent } = require("./models/Events");
-const { PostCreatedEvent } = require("./models/Events");
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import connectToDatabase from "./config/connectToDatabase";
+import { Event, PostCreatedEvent, SignedUpEvent } from "./models/Events";
+import Person from "./models/Person";
+import Post from "./models/Post";
+import createPost from "./services/createPost";
 
 dotenv.config();
 

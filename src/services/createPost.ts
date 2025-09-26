@@ -1,8 +1,7 @@
-const Post = require("../models/Post");
-const { SignedUpEvent } = require("../models/Events");
-const { PostCreatedEvent } = require("../models/Events");
+import { PostCreatedEvent, SignedUpEvent } from "../models/Events";
+import Post from "../models/Post";
 
-module.exports = async function createPost(session, user) {
+async function createPost(session, user) {
   try {
     const newSingedUpEvent = await SignedUpEvent.create(
       [{
@@ -39,3 +38,5 @@ module.exports = async function createPost(session, user) {
     await session.endSession();
   }
 }
+
+export default createPost;
