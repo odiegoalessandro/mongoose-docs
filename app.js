@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 async function main() {
-  await mongoose.connect("mongodb+srv://<user>>:<pass>>@cluster0.7sdbh44.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+  await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.7sdbh44.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
 
   const personSchema = new mongoose.Schema({
     name: String,
