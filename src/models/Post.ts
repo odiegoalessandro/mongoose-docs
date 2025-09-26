@@ -10,7 +10,7 @@ const postSchema = new mongoose.Schema<PostInterface>({
   updatedAt: { type: Date, default: Date.now }
 }, { timestamps: true }); 
 
-type PostDoc = HydratedDocument<PostInterface>;
+export type PostDoc = HydratedDocument<PostInterface>;
 
 const Post = mongoose.model<PostInterface, PostModel>("Post", postSchema);
 

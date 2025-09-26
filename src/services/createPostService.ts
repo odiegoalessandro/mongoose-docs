@@ -1,10 +1,13 @@
 import { ClientSession } from "mongoose";
 import { PostCreatedEvent, SignedUpEvent } from "../models/Events";
 import { PersonDoc } from "../models/Person";
-import Post from "../models/Post";
+import Post, { PostDoc } from "../models/Post";
 
-async function createPost(session: ClientSession, user: PersonDoc) {
+async function createPostService(session: ClientSession, user: PersonDoc, title: String, content: String): Promise<PostDoc | undefined>  {
   try {
+    session.startTransaction();
+    console.log("Transaction started");
+
     const newSingedUpEvent = await SignedUpEvent.create(
       [{
         title: "New signup in transaction",
@@ -15,8 +18,8 @@ async function createPost(session: ClientSession, user: PersonDoc) {
 
     const [newPost] = await Post.create(
       [{
-        title: "Post in transaction",
-        content: "This post is created inside a transaction",
+        title,
+        content,
         authors: [user._id]
       }], { session }
     );
@@ -33,6 +36,8 @@ async function createPost(session: ClientSession, user: PersonDoc) {
     await session.commitTransaction();
     console.log("Transaction committed successfully");
 
+    return newPost;
+
   } catch (error) {
     await session.abortTransaction();
     console.error("Transaction aborted due to an error:", error);
@@ -41,4 +46,4 @@ async function createPost(session: ClientSession, user: PersonDoc) {
   }
 }
 
-export default createPost;
+export default createPostService;
