@@ -1,13 +1,24 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const connectToDatabase = require("./config/connectToDatabase");
 
 dotenv.config();
 
+
 async function main() {
-  await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.7sdbh44.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
+  connectToDatabase();
+
+  if (process.argv.includes("--reset")) {
+    await mongoose.connection.dropDatabase();
+    console.log("Database dropped");
+    process.exit(0);
+  }
+
+  // learning about schemas and models
 
   const personSchema = new mongoose.Schema({
     name: String,
+    email: { type: String, unique: true },
     age: Number,
     gender: String
   }, {
@@ -24,33 +35,43 @@ async function main() {
   });
 
   const Person = mongoose.model("Person", personSchema);
-  const diego = await Person.create({ name: "Diego", age: 19, gender: "Male" });
+  let diego = undefined;
+
+  // querys and updates
+  
+  if(await Person.findOne({ email: "diego.martins@agxsoftware.com" })){
+    console.log("Diego ja existe")
+    diego = await Person.findOne({ email: "diego.martins@agxsoftware.com" });
+  } else {
+    diego = await Person.create({ name: "Diego", age: 19, gender: "Male", email: "diego.martins@agxsoftware.com" });
+  }
 
   diego.greeting();
 
-  const people = await Person.findOne({ name: "Diego" });
-  console.log("findByName:", people);
-
-  await Person.updateOne({ name: "Diego" }, { $set: { age: 20 } });
+  await Person.updateOne({ email: "diego.martins@agxsoftware.com" }, { $set: { age: 20 } });
   
   const postSchema = new mongoose.Schema({
     title: String,
     content: String,
-    authors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Person" }]
-  });
+    authors: [{ type: mongoose.Schema.Types.ObjectId, ref: Person }]
+  }, { timestamps: true });
 
   const Post = mongoose.model("Post", postSchema);
   const post = await Post.create({
     title: "My first post",
     content: "This is the content of my first post",
-    authors: [people._id]
+    authors: [diego._id]
   })
 
+  // populate
+  
   const myPost = await Post.findById(post._id).populate("authors");
   console.log("myPost:", myPost);
   
   const myPost2 = await Post.findById(post._id);
   console.log("myPost2:", myPost2);
+  
+  // discripriminators
 
   const options = { discriminatorKey: "kind" };
 
@@ -89,25 +110,7 @@ async function main() {
   const clicks = await ClickedLinkEvent.find();
   console.log("Somente ClickedLink:", clicks);
 
-  const messageSchema = new mongoose.Schema({
-    text: String,
-    author: { type: mongoose.Schema.Types.ObjectId, ref: "Person" }
-  }, { 
-    timestamps: true
-  });
-
-  const Message = mongoose.model("Message",  messageSchema);
-
-  await Message.create({
-    text: "Hello, world!",
-    author: diego._id
-  });
-
-  const message = await Message.findOne().populate("author");
-  console.log("message:", message);
-
   await mongoose.disconnect();
-
 }
 
 main().catch(console.error);
