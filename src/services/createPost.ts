@@ -1,7 +1,9 @@
+import { ClientSession } from "mongoose";
 import { PostCreatedEvent, SignedUpEvent } from "../models/Events";
+import { PersonDoc } from "../models/Person";
 import Post from "../models/Post";
 
-async function createPost(session, user) {
+async function createPost(session: ClientSession, user: PersonDoc) {
   try {
     const newSingedUpEvent = await SignedUpEvent.create(
       [{

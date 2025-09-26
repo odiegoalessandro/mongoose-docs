@@ -1,16 +1,15 @@
 import dotenv from "dotenv";
-import mongoose from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import connectToDatabase from "./config/connectToDatabase";
 import { Event, PostCreatedEvent, SignedUpEvent } from "./models/Events";
-import Person from "./models/Person";
+import Person, { PersonDoc } from "./models/Person";
 import Post from "./models/Post";
 import createPost from "./services/createPost";
 
 dotenv.config();
 
-
 async function main() {
-  connectToDatabase();
+  await connectToDatabase();
 
   if (process.argv.includes("--reset")) {
     await mongoose.connection.dropDatabase();
@@ -18,41 +17,43 @@ async function main() {
     process.exit(0);
   }
 
-  let diego = undefined;
+  let diego: PersonDoc | null = await Person.findOne({ email: "diego.martins@agxsoftware.com" });
 
-  // querys and updates
-  
-  if(await Person.findOne({ email: "diego.martins@agxsoftware.com" })){
-    console.log("Diego ja existe")
-    diego = await Person.findOne({ email: "diego.martins@agxsoftware.com" });
+  if (diego) {
+    console.log("Diego já existe");
   } else {
-    diego = await Person.create({ name: "Diego", age: 19, gender: "Male", email: "diego.martins@agxsoftware.com" });
+    diego = await Person.create({
+      name: "Diego",
+      age: 19,
+      gender: "Male",
+      email: "diego.martins@agxsoftware.com",
+    });
   }
 
   diego.greeting();
 
-  await Person.updateOne({ email: "diego.martins@agxsoftware.com" }, { $set: { age: 20 } });
+  await Person.updateOne(
+    { email: "diego.martins@agxsoftware.com" },
+    { $set: { age: 20 } }
+  );
 
   // transactions
-
-  const session = await mongoose.startSession();
+  const session: ClientSession = await mongoose.startSession();
   session.startTransaction();
 
   await createPost(session, diego);
 
   // populate
-  
   const myPost = await Post.find().populate("authors");
   console.log("myPost:", myPost);
 
-  // mongoose possibilities get all events or just one type of then
-
+  // events
   const allEvents = await Event.find();
   console.log("All events:", allEvents);
 
   const allSignedUpEvents = await SignedUpEvent.find();
   console.log("All SignedUp events:", allSignedUpEvents);
-  
+
   const allPostCreatedEvents = await PostCreatedEvent.find();
   console.log("All PostCreated events:", allPostCreatedEvents);
 
